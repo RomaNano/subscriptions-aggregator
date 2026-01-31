@@ -14,6 +14,5 @@ type SubscriptionService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, f ListFilter) ([]domain.Subscription, error)
 
-	// ключевая ручка
 	Total(ctx context.Context, f TotalFilter) (int, error)
 }

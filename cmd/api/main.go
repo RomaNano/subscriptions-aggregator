@@ -13,14 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/RomaNano/subscriptions-aggregator/internal/config"
+	"github.com/RomaNano/subscriptions-aggregator/internal/handlers"
 	"github.com/RomaNano/subscriptions-aggregator/internal/httpserver"
 	"github.com/RomaNano/subscriptions-aggregator/internal/repo"
+	"github.com/RomaNano/subscriptions-aggregator/internal/service"
 )
 
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		// тут slog ещё нет
 		panic(err)
 	}
 
@@ -48,18 +49,19 @@ func main() {
 		_ = pg.DB.Close()
 	}()
 
-
 	if cfg.Env == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	
 	r := gin.New()
 	r.Use(gin.Recovery())
 
 	subRepo := repo.NewSubscriptionPostgres(pg.DB)
-	_ = subRepo
-	
+	subSvc := service.NewSubscriptionService(subRepo)
+
+	subH := handlers.NewSubscriptionHandler(subSvc)
+	totalH := handlers.NewTotalHandler(subSvc)
+
 	r.GET("/health", func(c *gin.Context) {
 		pingCtx, cancel := context.WithTimeout(c.Request.Context(), 1*time.Second)
 		defer cancel()
@@ -71,6 +73,17 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	api := r.Group("/api/v1")
+	{
+		api.POST("/subscriptions", subH.Create)
+		api.GET("/subscriptions/:id", subH.GetByID)
+		api.PUT("/subscriptions/:id", subH.Update)
+		api.DELETE("/subscriptions/:id", subH.Delete)
+		api.GET("/subscriptions", subH.List)
+
+		api.GET("/subscriptions/total", totalH.Get)
+	}
+
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", cfg.HTTP.Host, cfg.HTTP.Port),
 		Handler:      r,
@@ -79,7 +92,6 @@ func main() {
 		IdleTimeout:  cfg.HTTP.IdleTimeout,
 	}
 
-
 	go func() {
 		logger.Info("http server starting", "addr", srv.Addr, "env", cfg.Env)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -87,7 +99,6 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)

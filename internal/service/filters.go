@@ -20,6 +20,6 @@ type TotalFilter struct {
 	UserID      *uuid.UUID
 	ServiceName *string
 
-	From time.Time // обязательны
+	From time.Time 
 	To   time.Time
 }
