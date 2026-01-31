@@ -89,12 +89,12 @@ func (s *subscriptionService) Total(ctx context.Context, f TotalFilter) (int, er
 		return 0, ErrInvalidPeriod
 	}
 
-	// Забираем все потенциально пересекающиеся подписки
+
 	rf := repo.ListFilter{
 		UserID:      f.UserID,
 		ServiceName: f.ServiceName,
-		From:        &f.To,   // start_date <= To
-		To:          &f.From, // end_date >= From OR NULL
+		From:        &f.To,   
+		To:          &f.From, 
 		Limit:       0,
 		Offset:     0,
 	}
