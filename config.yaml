@@ -1,0 +1,19 @@
+env: "local"
+
+http:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: "5s"
+  write_timeout: "5s"
+  idle_timeout: "60s"
+
+db:
+  host: "db"
+  port: 5432
+  user: "app"
+  password: "app"
+  name: "app"
+  sslmode: "disable"
+
+log:
+  level: "info"
