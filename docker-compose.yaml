@@ -22,13 +22,10 @@ services:
         condition: service_healthy
     volumes:
       - ./migrations:/migrations
-    command:
-      [
-        "-path", "/migrations",
-        "-database",
-        "postgres://app:app@db:5432/app?sslmode=disable",
-        "up"
-      ]
+    command: >
+      -path /migrations
+      -database postgres://app:app@db:5432/app?sslmode=disable
+      up
     restart: on-failure:3
 
   api:
