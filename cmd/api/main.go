@@ -53,10 +53,13 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-
+	subRepo := repo.NewSubscriptionPostgres(pg.DB)
+	_ = subRepo
+	
 	r.GET("/health", func(c *gin.Context) {
 		pingCtx, cancel := context.WithTimeout(c.Request.Context(), 1*time.Second)
 		defer cancel()
