@@ -102,7 +102,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	// ---------- swagger (ВАЖНО: НЕ внутри /api/v1) ----------
+	// ---------- swagger ----------
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// ---------- API v1 ----------
