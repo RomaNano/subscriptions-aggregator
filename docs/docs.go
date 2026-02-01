@@ -147,6 +147,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/subscriptions/total": {
+            "get": {
+                "description": "Calculate total cost of subscriptions for a period",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get total subscription cost",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From date (YYYY-MM)",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To date (YYYY-MM)",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service name",
+                        "name": "service_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.TotalResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/subscriptions/{id}": {
             "get": {
                 "description": "Get subscription by ID",
@@ -318,15 +384,8 @@ const docTemplate = `{
     "definitions": {
         "internal_handlers.CreateSubscriptionRequest": {
             "type": "object",
-            "required": [
-                "price",
-                "service_name",
-                "start_date",
-                "user_id"
-            ],
             "properties": {
                 "end_date": {
-                    "description": "YYYY-MM-01 or null",
                     "type": "string"
                 },
                 "price": {
@@ -336,7 +395,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "start_date": {
-                    "description": "YYYY-MM-01",
                     "type": "string"
                 },
                 "user_id": {
@@ -373,13 +431,16 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handlers.TotalResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_handlers.UpdateSubscriptionRequest": {
             "type": "object",
-            "required": [
-                "price",
-                "service_name",
-                "start_date"
-            ],
             "properties": {
                 "end_date": {
                     "type": "string"
